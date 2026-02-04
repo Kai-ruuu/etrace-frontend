@@ -5,8 +5,6 @@
 
 <div
 style="background-image: url('{cctBg}')"
-class="w-full h-full flex flex-col items-center bg-[url(../assets/cct-bg.jpg)]">
-    <div class="w-full h-full p-8 bg-white/75 flex flex-col items-center">
-        <Header></Header>
-    </div>
+ class="w-full h-full overflow-x-hidden overflow-y-auto p-8 bg-white/75 space-y-8 items-center flex flex-col bg-center bg-no-repeat bg-cover">
+    <Header></Header>
 </div>

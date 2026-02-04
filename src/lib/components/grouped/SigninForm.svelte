@@ -1,6 +1,6 @@
 <script>
     import logoWhite from "$lib/assets/logo-white.png"
-    import graduattesBg from "$lib/assets/graduates-bg.jpg"
+    import graduatesBg from "$lib/assets/graduates-bg.jpg"
     import { signin } from "$lib/client/authentication";
     import { GraduationCap, Mail, Lock, Circle, CircleCheck } from "lucide-svelte";
     
@@ -22,7 +22,7 @@
         if (email.length === 0) formData.email.errors.push("Email is required.")
         if (!email.includes("@")) formData.email.errors.push("Email is invalid.")
         if (password.length === 0) formData.password.errors.push("Password is required.")
-        else if (password.length < 8) formData.password.errors.push("Password must be at lesst 8 characters long.")
+        else if (password.length < 8) formData.password.errors.push("Password must be at least 8 characters long.")
 
         const isValid = formData.email.errors.length === 0 && formData.password.errors.length === 0
         return isValid
@@ -88,7 +88,7 @@
         </div>
     </div>
     <div
-        style="background-image: url('{graduattesBg}')"
+        style="background-image: url('{graduatesBg}')"
         class="hidden md:block md:w-1/2 bg-red-500 h-full bg-center bg-no-repeat bg-cover flex items-center content-center"
     >
         <div class="flex flex-col items-center text-white">
