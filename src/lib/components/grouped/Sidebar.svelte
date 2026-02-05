@@ -28,12 +28,12 @@
             </div>
         </div>
         {#if $user.role === role.SYSTEM_ADMIN}
-            <SidebarLink Icon={LayoutDashboard} path="/" padding={4}>Dashboard</SidebarLink>
+            <SidebarLink Icon={LayoutDashboard} path="/">Dashboard</SidebarLink>
             <SidebarLinkParent Icon={Wrench} label="Manage">
-                <SidebarLink Icon={School} path="/manage-schools" padding={4}>Schools</SidebarLink>
-                <SidebarLink Icon={Users} path="/manage-deans" padding={4}>Deans</SidebarLink>
-                <SidebarLink Icon={Users} path="/manage-peso-staffs" padding={4}>PESO Staffs</SidebarLink>
-                <SidebarLink Icon={Handshake} path="/manage-company-approvals" padding={4}>Company Approvals</SidebarLink>
+                <SidebarLink Icon={School} path="/manage-schools">Schools</SidebarLink>
+                <SidebarLink Icon={Users} path="/manage-deans">Deans</SidebarLink>
+                <SidebarLink Icon={Users} path="/manage-peso-staffs">PESO Staffs</SidebarLink>
+                <SidebarLink Icon={Handshake} path="/manage-company-approvals">Company Approvals</SidebarLink>
             </SidebarLinkParent>
         {/if}
         <button
