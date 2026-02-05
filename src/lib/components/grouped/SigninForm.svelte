@@ -1,6 +1,9 @@
 <script>
     import logoWhite from "$lib/assets/logo-white.png"
     import graduatesBg from "$lib/assets/graduates-bg.jpg"
+    import { user } from "$lib/stores/user"
+	import { role } from "$lib/constants/user";
+	import { openIndexPage } from "$lib/helpers/user";
     import { signin } from "$lib/client/authentication";
     import { GraduationCap, Mail, Lock, Circle, CircleCheck } from "lucide-svelte";
     
@@ -28,15 +31,20 @@
         return isValid
     }
 
-    async function submitForm() {
+    async function handleSignin(e) {
+        e.preventDefault()
+        
         if (!isFormDataValid()) return
 
-        await signin(formData)
+        const [status, data] = await signin(formData)
+        
+        user.set(data)
+        openIndexPage(data.role)
     }
 </script>
 
 <form
-    onsubmit={submitForm}
+    onsubmit={handleSignin}
     class="bg-white rounded-4xl md:w-2/3 min-h-112 flex overflow-hidden"
 >
     <div class="md:w-1/2 flex flex-col items-stretch p-8 md:p-8 space-y-8">

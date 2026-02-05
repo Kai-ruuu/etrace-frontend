@@ -8,6 +8,9 @@ node_modules
 /.svelte-kit
 /build
 
+# SSL
+*.pem
+
 # OS
 .DS_Store
 Thumbs.db
