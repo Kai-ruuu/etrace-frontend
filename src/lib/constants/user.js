@@ -5,3 +5,26 @@ export const role = {
     COMPANY: "COMPANY",
     ALUMNI: "ALUMNI",
 }
+
+export const displayApprovalStatus = {
+    PENDING: "Pending",
+    APPROVED: "Approved",
+    REJECTED: "Rejected",
+}
+
+export const approvalStatus = {
+    PENDING: "PENDING",
+    APPROVED: "APPROVED",
+    REJECTED: "REJECTED",
+}
+
+export const roleIndexPage = {
+    [role.SYSTEM_ADMIN]: "/user/system-admin",
+    [role.DEAN]: "/user/dean",
+}
+
+export const EmploymentStatus = {
+    EMPLOYED: 'EMPLOYED',
+    UNEMPLOYED: 'UNEMPLOYED',
+    SELF_EMPLOYED: 'SELF_EMPLOYED',
+};

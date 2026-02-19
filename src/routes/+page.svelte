@@ -1,7 +1,7 @@
 <script>
     import cctBg from "$lib/assets/cct-bg.jpg"
-    import Header from "$lib/components/grouped/Header.svelte";
-    import SigninForm from "$lib/components/grouped/SigninForm.svelte";
+    import Header from "$lib/components/grouped/global/Header.svelte";
+    import SigninForm from "$lib/components/grouped/global/SigninForm.svelte";
 </script>
 
 <div
