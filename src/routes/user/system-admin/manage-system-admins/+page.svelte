@@ -20,7 +20,7 @@
     })
     let isAddModalOpen = $state(false)
     
-    async function fetchSystemAdmins(query = undefined) {
+    async function handleSystemAdminsFetching(query = undefined) {
         systemAdminsInfo.loading = true
         const [status, data] = await SystemAdmin.searchSystemAdmins(
             query,
@@ -32,7 +32,7 @@
         Object.assign(systemAdminsInfo, data)
     }
     
-    async function fetchPrevSystemAdmins() {
+    async function handlePrevSystemAdminsFetching() {
         if (!systemAdminsInfo.has_prev) return
         
         systemAdminsInfo.loading = true
@@ -47,7 +47,7 @@
         Object.assign(systemAdminsInfo, data)
     }
             
-    async function fetchNextSystemAdmins() {
+    async function handleNextSystemAdminsFetching() {
         if (!systemAdminsInfo.has_next) return
                 
         systemAdminsInfo.loading = true
@@ -62,7 +62,23 @@
         Object.assign(systemAdminsInfo, data)
     }
 
-    onMount(async () => await fetchSystemAdmins(undefined))
+    async function handleSystemAdminsSearching() {
+        systemAdminsInfo.page = 1
+        await handleSystemAdminsFetching(searchQuery, false)
+    }
+    
+    async function handleSearchClearing() {
+        systemAdminsInfo.page = 1
+        await handleSystemAdminsFetching(undefined, false)
+    }
+
+    async function handleSystemAdminsRefetching(prev = false) {
+        if (prev && systemAdminsInfo.page > 1) systemAdminsInfo.page--
+
+        await handleSystemAdminsFetching(undefined, false)
+    }
+
+    onMount(async () => await handleSystemAdminsFetching(undefined))
     $effect(() => { if (systemAdminsInfo.items.length === 0) systemAdminsInfo.page = 0 })
 </script>
 
@@ -75,26 +91,16 @@
 <SystemAdminSystemAdminsList
     bind:searchQuery
     {systemAdminsInfo}
-    fetchPrevHandler={fetchPrevSystemAdmins}
-    fetchNextHandler={fetchNextSystemAdmins}
-    clearHandler={async () => {
-        systemAdminsInfo.page = 1
-        await fetchSystemAdmins(undefined, false)
-    }}
-    searchHandler={async () => {
-        systemAdminsInfo.page = 1
-        await fetchSystemAdmins(searchQuery, false)
-    }}
-    refetchHandler={async (prev = false) => {
-        if (prev && systemAdminsInfo.page > 1) systemAdminsInfo.page--
-
-        await fetchSystemAdmins(undefined, false)
-    }}
+    clearHandler={handleSearchClearing}
+    searchHandler={handleSystemAdminsSearching}
+    refetchHandler={handleSystemAdminsRefetching}
+    fetchPrevHandler={handlePrevSystemAdminsFetching}
+    fetchNextHandler={handleNextSystemAdminsFetching}
 />
 
 {#if isAddModalOpen}
     <AddSystemAdminModal
         exitHandler={() => isAddModalOpen = false}
-        refetchHandler={async () => await fetchSystemAdmins(undefined, false)}
+        refetchHandler={async () => await handleSystemAdminsFetching(undefined, false)}
     />
 {/if}

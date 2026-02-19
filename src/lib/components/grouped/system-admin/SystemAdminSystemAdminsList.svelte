@@ -18,7 +18,11 @@
     } = $props()
 
     async function disable(systemAdmin) {
-        await SystemAdmin.disableById(systemAdmin.id)
+        const [status, data] = await SystemAdmin.disableById(systemAdmin.id)
+
+        if (status !== 200) {
+            alert(data?.detail ?? "Unable to disable System Administrator.");
+        }
 
         const pageIsEmpty = systemAdminsInfo.items.length - 1 === 0
         
@@ -26,7 +30,11 @@
     }
 
     async function enable(systemAdmin) {
-        await SystemAdmin.enableById(systemAdmin.id)
+        const [status, data] = await SystemAdmin.enableById(systemAdmin.id)
+
+        if (status !== 200) {
+            alert(data?.detail ?? "Unable to enable System Administrator.");
+        }
 
         const pageIsEmpty = systemAdminsInfo.items.length - 1 === 0
         

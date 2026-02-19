@@ -18,7 +18,7 @@
         loading: false,
     })
     
-    async function fetchCompanies(query = undefined) {
+    async function handleCompaniesFetching(query = undefined) {
         companiesInfo.loading = true
         const [status, data] = await Company.searchCompanies(
             query,
@@ -30,7 +30,7 @@
         Object.assign(companiesInfo, data)
     }
     
-    async function fetchPrevCompanies() {
+    async function handlePrevCompaniesFetching() {
         if (!companiesInfo.has_prev) return
         
         companiesInfo.loading = true
@@ -45,7 +45,7 @@
         Object.assign(companiesInfo, data)
     }
             
-    async function fetchNextCompanies() {
+    async function handleNextCompaniesFetching() {
         if (!companiesInfo.has_next) return
                 
         companiesInfo.loading = true
@@ -60,7 +60,23 @@
         Object.assign(companiesInfo, data)
     }
 
-    onMount(async () => await fetchCompanies(undefined))
+    async function handleCompaniesSearching() {
+        companiesInfo.page = 1;
+        await handleCompaniesFetching(searchQuery, false);
+    }
+    
+    async function handleSearchClearing() {
+        companiesInfo.page = 1;
+        await handleCompaniesFetching(undefined, false);
+    }
+    
+    async function handleCompaniesRefetching(prev = false) {
+        if (prev && companiesInfo.page > 1) companiesInfo.page--
+
+        await handleCompaniesFetching(undefined, false)
+    }
+    
+    onMount(async () => await handleCompaniesFetching(undefined))
     $effect(() => { if (companiesInfo.items.length === 0) companiesInfo.page = 0 })
 </script>
 
@@ -68,19 +84,9 @@
 <SystemAdminCompaniesList
     bind:searchQuery
     {companiesInfo}
-    fetchPrevHandler={fetchPrevCompanies}
-    fetchNextHandler={fetchNextCompanies}
-    clearHandler={async () => {
-        companiesInfo.page = 1
-        await fetchCompanies(undefined, false)
-    }}
-    searchHandler={async () => {
-        companiesInfo.page = 1
-        await fetchCompanies(searchQuery, false)
-    }}
-    refetchHandler={async (prev = false) => {
-        if (prev && companiesInfo.page > 1) companiesInfo.page--
-
-        await fetchCompanies(undefined, false)
-    }}
+    clearHandler={handleSearchClearing}
+    searchHandler={handleCompaniesSearching}
+    refetchHandler={handleCompaniesRefetching}
+    fetchPrevHandler={handlePrevCompaniesFetching}
+    fetchNextHandler={handleNextCompaniesFetching}
 />

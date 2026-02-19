@@ -72,6 +72,7 @@
                         <th class="text-left p-2">Middle</th>
                         <th class="text-left p-2">Last</th>
                         <th class="text-left p-2">Email</th>
+                        <th class="text-left p-2">School</th>
                         <th class="text-left p-2">Status</th>
                         <th class="text-left p-2">Actions</th>
                     </tr>
@@ -83,6 +84,7 @@
                             <td class="p-2">{dean.dean_profile.middle_name ? dean.dean_profile.middle_name : "-"}</td>
                             <td class="p-2">{dean.dean_profile.last_name}</td>
                             <td class="p-2">{dean.email}</td>
+                            <td class="p-2">{dean.dean_profile.school.name}</td>
                             <td class={`p-2 ${dean.is_disabled ? "text-red-700" : "text-green-700"}`}>{dean.is_disabled ? "Disabled" : "Enabled"}</td>
                             <td class="p-2">
                                 <Button

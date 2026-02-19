@@ -24,7 +24,7 @@
     let viewAlumniId = $state(null)
     let isViewModalOpen = $state(false)
     
-    async function fetchAlumni(query = undefined, _status) {
+    async function handleAlumniFetching(query = undefined, _status) {
         alumniInfo.loading = true
         const [status, data] = await Alumni.searchAlumni(
             query,
@@ -37,7 +37,7 @@
         Object.assign(alumniInfo, data)
     }
     
-    async function fetchPrevAlumni() {
+    async function handlePrevAlumniFetching() {
         if (!alumniInfo.has_prev) return
         
         alumniInfo.loading = true
@@ -52,7 +52,7 @@
         Object.assign(alumniInfo, data)
     }
             
-    async function fetchNextAlumni() {
+    async function handleNextAlumniFetching() {
         if (!alumniInfo.has_next) return
                 
         alumniInfo.loading = true
@@ -67,7 +67,25 @@
         Object.assign(alumniInfo, data)
     }
 
-    onMount(async () => await fetchAlumni(undefined, _status))
+    async function handleAlumniSearching() {
+        alumniInfo.page = 1;
+        await handleAlumniFetching(searchQuery, _status);
+    }
+
+    async function handleSearchClearing() {
+        alumniInfo.page = 1;
+        await handleAlumniFetching(undefined, _status);
+    }
+
+    async function handleAlumniRefetching(prev = false) {
+        if (prev && alumniInfo.page > 1) {
+            alumniInfo.page--;
+        }
+
+        await handleAlumniFetching(undefined, _status);
+    }
+
+    onMount(async () => await handleAlumniFetching(undefined, _status))
 </script>
 
 <PageHeader title="Alumni Approval Management" />
@@ -77,21 +95,11 @@
     bind:viewAlumniId
     bind:isViewModalOpen
     {alumniInfo}
-    fetchPrevHandler={fetchPrevAlumni}
-    fetchNextHandler={fetchNextAlumni}
-    clearHandler={async () => {
-        alumniInfo.page = 1
-        await fetchAlumni(undefined, _status)
-    }}
-    searchHandler={async () => {
-        alumniInfo.page = 1
-        await fetchAlumni(searchQuery, _status)
-    }}
-    refetchHandler={async (prev = false) => {
-        if (prev && alumniInfo.page > 1) alumniInfo.page--
-
-        await fetchAlumni(undefined, _status)
-    }}
+    clearHandler={handleSearchClearing}
+    searchHandler={handleAlumniSearching}
+    refetchHandler={handleAlumniRefetching}
+    fetchPrevHandler={handlePrevAlumniFetching}
+    fetchNextHandler={handleNextAlumniFetching}
 />
 
 {#if isViewModalOpen}

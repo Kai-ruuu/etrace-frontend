@@ -23,7 +23,7 @@
     })
     let isAddModalOpen = $state(false)
     
-    async function fetchOccupations(query = undefined, aligned = undefined) {
+    async function handleOccupationsFetching(query = undefined, aligned = undefined) {
         occupationsInfo.loading = true
         const [status, data] = await Occupation.searchWithCourseId(
             courseId,
@@ -37,7 +37,7 @@
         Object.assign(occupationsInfo, data)
     }
     
-    async function fetchPrevOccupations() {
+    async function handlePrevOccupationsFetching() {
         if (!occupationsInfo.has_prev) return
         
         occupationsInfo.loading = true
@@ -53,7 +53,7 @@
         Object.assign(occupationsInfo, data)
     }
             
-    async function fetchNextOccupations() {
+    async function handleNextOccupationsFetching() {
         if (!occupationsInfo.has_next) return
                 
         occupationsInfo.loading = true
@@ -69,18 +69,38 @@
         Object.assign(occupationsInfo, data)
     }
 
-    async function fetchCourses() {
+    async function handleDeanSchoolCoursesFetching() {
         const [status, data] = await Course.getDeanList()
 
-        if (status !== 200) return
+        if (status !== 200) {
+            return;
+        }
 
-        courses = data
+        courses = data;
 
-        if (courses.length > 0) courseId = courses[0].id
+        if (courses.length > 0) {
+            courseId = courses[0].id;
+        }
     }
 
-    onMount(async () => await fetchCourses())
-    $effect(async () => { if (courses && courses.length > 0) await fetchOccupations(undefined, aligned) })
+    async function handleOccupationsSearching() {
+        occupationsInfo.page = 1;
+        await handleOccupationsFetching(searchQuery, aligned);
+    }
+    
+    async function handleSearchClearing() {
+        occupationsInfo.page = 1;
+        await handleOccupationsFetching(undefined, aligned);
+    }
+
+    async function handleOccupationsRefetching(prev = false) {
+        if (prev && occupationsInfo.page > 1) occupationsInfo.page--
+
+        await handleOccupationsFetching(undefined, aligned)
+    }
+
+    onMount(async () => await handleDeanSchoolCoursesFetching())
+    $effect(async () => { if (courses && courses.length > 0) await handleOccupationsFetching(undefined, aligned) })
 </script>
 
 <PageHeader title="Occupations Alignement Management" />
@@ -90,19 +110,9 @@
     bind:aligned
     bind:courseId
     bind:courses
-    clearHandler={async () => {
-        occupationsInfo.page = 1
-        await fetchOccupations(undefined, aligned)
-    }}
-    searchHandler={async () => {
-        occupationsInfo.page = 1
-        await fetchOccupations(searchQuery, aligned)
-    }}
-    refetchHandler={async (prev = false) => {
-        if (prev && occupationsInfo.page > 1) occupationsInfo.page--
-
-        await fetchOccupations(undefined, aligned)
-    }}
-    fetchPrevHandler={fetchPrevOccupations}
-    fetchNextHandler={fetchNextOccupations}
+    clearHandler={handleSearchClearing}
+    searchHandler={handleOccupationsSearching}
+    refetchHandler={handleOccupationsRefetching}
+    fetchPrevHandler={handlePrevOccupationsFetching}
+    fetchNextHandler={handleNextOccupationsFetching}
 />

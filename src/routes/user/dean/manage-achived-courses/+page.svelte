@@ -19,7 +19,7 @@
         loading: false,
     })
     
-    async function fetchCourses(query = undefined, archived = undefined) {
+    async function handleCourseFetching(query = undefined, archived = undefined) {
         coursesInfo.loading = true
         const [status, data] = await Course.searchCourses(
             query,
@@ -32,7 +32,7 @@
         Object.assign(coursesInfo, data)
     }
     
-    async function fetchPrevCourses() {
+    async function handlePrevCoursesFetching() {
         if (!coursesInfo.has_prev) return
         
         coursesInfo.loading = true
@@ -47,7 +47,7 @@
         Object.assign(coursesInfo, data)
     }
             
-    async function fetchNextCourses() {
+    async function handleNextCoursesFetching() {
         if (!coursesInfo.has_next) return
                 
         coursesInfo.loading = true
@@ -62,28 +62,36 @@
         Object.assign(coursesInfo, data)
     }
 
-    onMount(async () => await fetchCourses(undefined, true))
+    async function handleCourseSearching() {
+        coursesInfo.page = 1;
+        await handleCourseFetching(searchQuery, true);
+    }
+    
+    async function handleSearchClearing() {
+        coursesInfo.page = 1;
+        await handleCourseFetching(undefined, true);
+    }
+
+    async function handleCoursesRefetching(prev = false) {
+        if (prev && coursesInfo.page > 1) {
+            coursesInfo.page--;
+        }
+
+        await handleCourseFetching(undefined, true);
+    }
+
+    onMount(async () => await handleCourseFetching(undefined, true))
     $effect(() => { if (coursesInfo.items.length === 0) coursesInfo.page = 0 })
 </script>
 
 <PageHeader title="Archived Course Management" />
 <DeanCoursesList
-    forArchived={true}
     {coursesInfo}
     bind:searchQuery
-    clearHandler={async () => {
-        coursesInfo.page = 1
-        await fetchCourses(undefined, true)
-    }}
-    searchHandler={async () => {
-        coursesInfo.page = 1
-        await fetchCourses(searchQuery, true)
-    }}
-    refetchHandler={async (prev = false) => {
-        if (prev && coursesInfo.page > 1) coursesInfo.page--
-
-        await fetchCourses(undefined, true)
-    }}
-    fetchPrevHandler={fetchPrevCourses}
-    fetchNextHandler={fetchNextCourses}
+    forArchived={true}
+    clearHandler={handleSearchClearing}
+    searchHandler={handleCourseSearching}
+    refetchHandler={handleCoursesRefetching}
+    fetchPrevHandler={handlePrevCoursesFetching}
+    fetchNextHandler={handleNextCoursesFetching}
 />
