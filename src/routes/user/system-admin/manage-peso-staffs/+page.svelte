@@ -21,7 +21,7 @@
     })
     let isAddModalOpen = $state(false)
     
-    async function fetchPesoStaffs(query = undefined) {
+    async function handlePesoStaffsFetching(query = undefined) {
         pesoStaffsInfo.loading = true
         const [status, data] = await PesoStaff.searchPesoStaffs(
             query,
@@ -33,7 +33,7 @@
         Object.assign(pesoStaffsInfo, data)
     }
     
-    async function fetchPrevPesoStaffs() {
+    async function handlePrevPesoStaffsFetching() {
         if (!pesoStaffsInfo.has_prev) return
         
         pesoStaffsInfo.loading = true
@@ -48,7 +48,7 @@
         Object.assign(pesoStaffsInfo, data)
     }
             
-    async function fetchNextPesoStaffs() {
+    async function handleNextPesoStaffsFetching() {
         if (!pesoStaffsInfo.has_next) return
                 
         pesoStaffsInfo.loading = true
@@ -63,7 +63,23 @@
         Object.assign(pesoStaffsInfo, data)
     }
 
-    onMount(async () => await fetchPesoStaffs(undefined))
+    async function handlePesoStaffsSearching() {
+        pesoStaffsInfo.page = 1
+        await handlePesoStaffsFetching(searchQuery, false)
+    }
+    
+    async function handleSearchClearing() {
+        pesoStaffsInfo.page = 1;
+        await handlePesoStaffsFetching(undefined, false);
+    }
+
+    async function handlePesoStaffsRefetching(prev = false) {
+        if (prev && pesoStaffsInfo.page > 1) pesoStaffsInfo.page--
+
+        await handlePesoStaffsFetching(undefined, false)
+    }
+
+    onMount(async () => await handlePesoStaffsFetching(undefined))
     $effect(() => { if (pesoStaffsInfo.items.length === 0) pesoStaffsInfo.page = 0 })
 </script>
 
@@ -76,26 +92,16 @@
 <SystemAdminPesoStaffsList
     bind:searchQuery
     {pesoStaffsInfo}
-    fetchPrevHandler={fetchPrevPesoStaffs}
-    fetchNextHandler={fetchNextPesoStaffs}
-    clearHandler={async () => {
-        pesoStaffsInfo.page = 1
-        await fetchPesoStaffs(undefined, false)
-    }}
-    searchHandler={async () => {
-        pesoStaffsInfo.page = 1
-        await fetchPesoStaffs(searchQuery, false)
-    }}
-    refetchHandler={async (prev = false) => {
-        if (prev && pesoStaffsInfo.page > 1) pesoStaffsInfo.page--
-
-        await fetchPesoStaffs(undefined, false)
-    }}
+    clearHandler={handleSearchClearing}
+    searchHandler={handlePesoStaffsSearching}
+    refetchHandler={handlePesoStaffsRefetching}
+    fetchPrevHandler={handlePrevPesoStaffsFetching}
+    fetchNextHandler={handleNextPesoStaffsFetching}
 />
 
 {#if isAddModalOpen}
     <AddPesoStaffModal
         exitHandler={() => isAddModalOpen = false}
-        refetchHandler={async () => await fetchPesoStaffs(undefined, false)}
+        refetchHandler={async () => await handlePesoStaffsFetching(undefined, false)}
     />
 {/if}

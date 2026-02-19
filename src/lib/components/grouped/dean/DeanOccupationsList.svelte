@@ -48,13 +48,7 @@
 <div class="px-8 bg-white space-y-6">
     <div class="flex items-center space-x-4">
         <div class="flex items-stretch space-x-3 grow relative">
-            <select
-                bind:value={aligned}
-                class="rounded-lg border-none bg-gray-100"
-            >
-                <option value={true}>Aligned</option>
-                <option value={false}>Unaligned</option>
-            </select>
+            <!-- course filter selection -->
             <select
                 bind:value={courseId}
                 class="rounded-lg border-none bg-gray-100"
@@ -65,6 +59,17 @@
                     {/each}
                 {/if}
             </select>
+
+            <!-- alignment filter selection -->
+            <select
+                bind:value={aligned}
+                class="rounded-lg border-none bg-gray-100"
+            >
+                <option value={true}>Aligned</option>
+                <option value={false}>Unaligned</option>
+            </select>
+
+            <!-- seach box -->
             <input
                 bind:value={searchQuery}
                 type="text"

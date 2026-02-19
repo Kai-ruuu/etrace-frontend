@@ -20,7 +20,7 @@
     })
     let isAddModalOpen = $state(false)
     
-    async function fetchCourses(query = undefined, archived = undefined) {
+    async function handleCourseFetching(query = undefined, archived = undefined) {
         coursesInfo.loading = true
         const [status, data] = await Course.searchCourses(
             query,
@@ -33,7 +33,7 @@
         Object.assign(coursesInfo, data)
     }
     
-    async function fetchPrevCourses() {
+    async function handlePrevCoursesFetching() {
         if (!coursesInfo.has_prev) return
         
         coursesInfo.loading = true
@@ -48,7 +48,7 @@
         Object.assign(coursesInfo, data)
     }
             
-    async function fetchNextCourses() {
+    async function handleNextCoursesFetching() {
         if (!coursesInfo.has_next) return
                 
         coursesInfo.loading = true
@@ -63,7 +63,25 @@
         Object.assign(coursesInfo, data)
     }
 
-    onMount(async () => await fetchCourses(undefined, false))
+    async function handleCourseSearching() {
+        coursesInfo.page = 1
+        await handleCourseFetching(searchQuery, false)
+    }
+
+    async function handleSearchClearing() {
+        coursesInfo.page = 1
+        await handleCourseFetching(undefined, false)
+    }
+
+    async function handleCoursesRefetching(prev = false) {
+        if (prev && coursesInfo.page > 1) {
+            coursesInfo.page--;
+        }
+
+        await handleCourseFetching(undefined, false);
+    }
+
+    onMount(async () => await handleCourseFetching(undefined, false))
     $effect(() => { if (coursesInfo.items.length === 0) coursesInfo.page = 0 })
 </script>
 
@@ -74,29 +92,19 @@
     </Button>
 </PageHeader>
 <DeanCoursesList
-    forArchived={false}
     {coursesInfo}
     bind:searchQuery
-    clearHandler={async () => {
-        coursesInfo.page = 1
-        await fetchCourses(undefined, false)
-    }}
-    searchHandler={async () => {
-        coursesInfo.page = 1
-        await fetchCourses(searchQuery, false)
-    }}
-    refetchHandler={async (prev = false) => {
-        if (prev && coursesInfo.page > 1) coursesInfo.page--
-
-        await fetchCourses(undefined, false)
-    }}
-    fetchPrevHandler={fetchPrevCourses}
-    fetchNextHandler={fetchNextCourses}
+    forArchived={false}
+    clearHandler={handleSearchClearing}
+    searchHandler={handleCourseSearching}
+    refetchHandler={handleCoursesRefetching}
+    fetchPrevHandler={handlePrevCoursesFetching}
+    fetchNextHandler={handleNextCoursesFetching}
 />
 
 {#if isAddModalOpen}
     <AddCourseModal
         exitHandler={() => isAddModalOpen = false}
-        refetchHandler={async () => await fetchCourses(undefined, false)}
+        refetchHandler={async () => await handleCourseFetching(undefined, false)}
     />
 {/if}

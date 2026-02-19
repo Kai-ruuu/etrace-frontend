@@ -18,7 +18,7 @@
         loading: false,
     })
     
-    async function fetchSchools(query = undefined, archived = undefined) {
+    async function handleSchoolsFetching(query = undefined, archived = undefined) {
         schoolsInfo.loading = true
         const [status, data] = await School.searchSchools(
             query,
@@ -31,7 +31,7 @@
         Object.assign(schoolsInfo, data)
     }
 
-    async function fetchPrevSchools() {
+    async function handlePrevSchoolsFetching() {
         if (!schoolsInfo.has_prev) return
         
         schoolsInfo.loading = true
@@ -46,7 +46,7 @@
         Object.assign(schoolsInfo, data)
     }
             
-    async function fetchNextSchools() {page_size
+    async function handleNextSchoolsFetching() {
         if (!schoolsInfo.has_next) return
                 
         schoolsInfo.loading = true
@@ -60,8 +60,24 @@
 
         Object.assign(schoolsInfo, data)
     }
+
+    async function handleSchoolsSearching() {
+        schoolsInfo.page = 1
+        await handleSchoolsFetching(searchQuery, true)
+    }
     
-    onMount(async () => await fetchSchools(undefined, true))
+    async function handleSearchClearing() {
+        schoolsInfo.page = 1
+        await handleSchoolsFetching(undefined, true)
+    }
+
+    async function handleSchoolsRefetching(prev) {
+        if (prev && schoolsInfo.page > 1) schoolsInfo.page--
+        
+        await handleSchoolsFetching(undefined, true)
+    }
+    
+    onMount(async () => await handleSchoolsFetching(undefined, true))
     $effect(() => { if (schoolsInfo.items.length === 0) schoolsInfo.page = 0 })
 </script>
 
@@ -70,17 +86,9 @@
     forArchived={true}
     {schoolsInfo}
     bind:searchQuery
-    clearHandler={async () => {
-        schoolsInfo.page = 1
-        await fetchSchools(undefined, true)
-    }}
-    searchHandler={async () => {
-        schoolsInfo.page = 1
-        await fetchSchools(searchQuery, true)
-    }}
-    refetchHandler={async (prev) => {
-        if (prev && schoolsInfo.page > 1) schoolsInfo.page--
-        
-        await fetchSchools(undefined, true)
-    }}
+    clearHandler={handleSearchClearing}
+    searchHandler={handleSchoolsSearching}
+    refetchHandler={handleSchoolsRefetching}
+    fetchPrevHandler={handlePrevSchoolsFetching}
+    fetchNextHandler={handleNextSchoolsFetching}
 />

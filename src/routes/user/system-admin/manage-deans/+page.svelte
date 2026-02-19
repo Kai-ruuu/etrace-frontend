@@ -20,7 +20,7 @@
     })
     let isAddModalOpen = $state(false)
     
-    async function fetchDeans(query = undefined) {
+    async function handleDeansFetching(query = undefined) {
         deansInfo.loading = true
         const [status, data] = await Dean.searchDeans(
             query,
@@ -32,7 +32,7 @@
         Object.assign(deansInfo, data)
     }
     
-    async function fetchPrevDeans() {
+    async function handlePrevDeansFetching() {
         if (!deansInfo.has_prev) return
         
         deansInfo.loading = true
@@ -47,7 +47,7 @@
         Object.assign(deansInfo, data)
     }
             
-    async function fetchNextDeans() {
+    async function handleNextDeansFetching() {
         if (!deansInfo.has_next) return
                 
         deansInfo.loading = true
@@ -62,7 +62,23 @@
         Object.assign(deansInfo, data)
     }
 
-    onMount(async () => await fetchDeans(undefined))
+    async function handleDeansSearching() {
+        deansInfo.page = 1;
+        await handleDeansFetching(searchQuery, false);
+    }
+    
+    async function handleSearchClearing() {
+        deansInfo.page = 1;
+        await handleDeansFetching(undefined, false);
+    }
+
+    async function handleDeansRefetching(prev = false) {
+        if (prev && deansInfo.page > 1) deansInfo.page--
+
+        await handleDeansFetching(undefined, false)
+    }
+
+    onMount(async () => await handleDeansFetching(undefined))
     $effect(() => { if (deansInfo.items.length === 0) deansInfo.page = 0 })
 </script>
 
@@ -75,26 +91,16 @@
 <SystemAdminDeansList
     bind:searchQuery
     {deansInfo}
-    fetchPrevHandler={fetchPrevDeans}
-    fetchNextHandler={fetchNextDeans}
-    clearHandler={async () => {
-        deansInfo.page = 1
-        await fetchDeans(undefined, false)
-    }}
-    searchHandler={async () => {
-        deansInfo.page = 1
-        await fetchDeans(searchQuery, false)
-    }}
-    refetchHandler={async (prev = false) => {
-        if (prev && deansInfo.page > 1) deansInfo.page--
-
-        await fetchDeans(undefined, false)
-    }}
+    clearHandler={handleSearchClearing}
+    searchHandler={handleDeansSearching}
+    refetchHandler={handleDeansRefetching}
+    fetchPrevHandler={handlePrevDeansFetching}
+    fetchNextHandler={handleNextDeansFetching}
 />
 
 {#if isAddModalOpen}
     <AddDeanModal
         exitHandler={() => isAddModalOpen = false}
-        refetchHandler={async () => await fetchDeans(undefined, false)}
+        refetchHandler={async () => await handleDeansFetching(undefined, false)}
     />
 {/if}

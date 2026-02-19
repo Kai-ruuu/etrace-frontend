@@ -25,7 +25,7 @@
     let isOccMapViewOpen = $state(false)
     let geocodingInfo = $state(null)
 
-    async function geocodeOccupationLocation(occupation) {
+    async function handleLocationGeocoding(occupation) {
         const [status, data] = await Alumni.getGeocodedOccLocation(occupation);
 
         if (status === 200) {
@@ -51,7 +51,7 @@
         return status
     }
 
-    async function fetchAlumni() {
+    async function handleAlumniFetch() {
         const [status, data] = await Alumni.getById(viewAlumniId);
 
         if (status === 200) {
@@ -68,8 +68,12 @@
 
         await tick();
 
-        const status = await geocodeOccupationLocation(occupation);
+        const status = await handleLocationGeocoding(occupation);
 
+        if (status !== 200) {
+            isOccMapViewOpen = false;
+        }
+        
         if (status === 404) {
             alert("Address not found.");
         } else if (status !== 200) {
@@ -97,13 +101,13 @@
         window.open(url, '_blank');
     }
     
-    onMount(fetchAlumni)
+    onMount(handleAlumniFetch)
 </script>
 
 {#if alumni}
     <div class="fixed top-0 left-0 w-screen h-screen z-100 bg-gray-50/75 flex items-center justify-center">
         <div class="shadow rounded-xl bg-white overflow-hidden flex flex-col items-stretch min-w-1/3 md:min-w-2/3">
-            <ModalHeader title={geocodingInfo?.address ?? "Loading..."}>
+            <ModalHeader title={"Alumni Profile"}>
                 <TransparentButton onclick={() => handleModalExit()}>
                     <X class="w-5" />
                 </TransparentButton>

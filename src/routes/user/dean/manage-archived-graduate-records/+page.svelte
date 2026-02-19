@@ -1,10 +1,11 @@
 <script>
     import { onMount } from "svelte";
-	import { Plus } from "lucide-svelte";
+	import { Plus, X } from "lucide-svelte";
     import { GraduateRecord } from "$lib/client/graduate_record";
     import PageHeader from "$lib/components/single/admin/PageHeader.svelte";
 	import Button from "$lib/components/single/global/Button.svelte";
 	import DeanGraduateRecordsList from "$lib/components/grouped/dean/DeanGraduateRecordsList.svelte";
+	import { Course } from "$lib/client/course";
 
     let searchQuery = $state("")
     let recordsInfo = $state({
@@ -17,11 +18,39 @@
         has_prev: false,
         loading: false,
     })
+
+    let isRecordOpen = $state(false);
+    let isAddModalOpen = $state(false);
+
+    let recordFileName = $state(null);
+
+    let filterCourses = $state([]);
+    let filterCourseId = $state(null);
+    let isFilterCoursesReady = $state(false);
     
-    async function fetchGraduateRecords(query = undefined, archived = undefined) {
+    async function handleDeanSchoolCoursesFetching() {
+        const [status, data] = await Course.getDeanList();
+
+        if (status === 200) {
+            filterCourses = data;
+
+            // auto-assign selected course id if there are available courses
+            if (filterCourses.length > 0) {
+                filterCourseId = filterCourses[0].id
+            }
+
+            // send ready signal
+            isFilterCoursesReady = true;
+        } else {
+            alert("Unable to fetch courses.")
+        }
+    }
+    
+    async function handleGraduateRecordsFetching(query = undefined, courseId = undefined, archived = undefined) {
         recordsInfo.loading = true
         const [status, data] = await GraduateRecord.searchGraduateRecords(
             query,
+            courseId,
             archived,
             recordsInfo.page,
             recordsInfo.page_size
@@ -31,12 +60,13 @@
         Object.assign(recordsInfo, data)
     }
     
-    async function fetchPrevGraduateRecords() {
+    async function handlePrevGraduateRecordsFetching(courseId) {
         if (!recordsInfo.has_prev) return
         
         recordsInfo.loading = true
         const [status, data] = await GraduateRecord.searchGraduateRecords(
             searchQuery.length ? searchQuery : undefined,
+            courseId,
             true,
             recordsInfo.page - 1,
             recordsInfo.page_size
@@ -46,12 +76,13 @@
         Object.assign(recordsInfo, data)
     }
             
-    async function fetchNextGraduateRecords() {
+    async function handleNextGraduateRecordsFetching(courseId) {
         if (!recordsInfo.has_next) return
                 
         recordsInfo.loading = true
         const [status, data] = await GraduateRecord.searchGraduateRecords(
             searchQuery.length ? searchQuery : undefined,
+            courseId,
             true,
             recordsInfo.page + 1,
             recordsInfo.page_size
@@ -61,28 +92,52 @@
         Object.assign(recordsInfo, data)
     }
 
-    onMount(async () => await fetchGraduateRecords(undefined, true))
-    $effect(() => { if (recordsInfo.items.length === 0) recordsInfo.page = 0 })
+    async function handleGraduateRecordsSearching() {
+        recordsInfo.page = 1
+        await handleGraduateRecordsFetching(searchQuery, filterCourseId, true)
+    }
+    
+    async function handleSearchClearing() {
+        recordsInfo.page = 1;
+        await handleGraduateRecordsFetching(undefined, filterCourseId, true);
+    }
+
+    async function handleGraduateRecordsRefetching(prev = false) {
+        if (prev && recordsInfo.page > 1) {
+            recordsInfo.page--;
+        }
+
+        await handleGraduateRecordsFetching(undefined, filterCourseId, true);
+    }
+
+    onMount(async () => await handleDeanSchoolCoursesFetching())
+    $effect(async () => {
+        if (isFilterCoursesReady) {
+            await handleGraduateRecordsFetching(undefined, filterCourseId, true);
+        }
+    })
 </script>
 
-<PageHeader title="Archived Graduate Record Management" />
+<PageHeader title={isRecordOpen ? recordFileName : "Archived Graduate Record Management"}>
+    {#if isRecordOpen}
+        <Button onclick={() => isRecordOpen = false}>
+            <X class="w-5 text-white" />
+            <span class="pr-2">Close Record</span>
+        </Button>
+    {/if}
+</PageHeader>
 <DeanGraduateRecordsList
     forArchived={true}
     {recordsInfo}
     bind:searchQuery
-    clearHandler={async () => {
-        recordsInfo.page = 1
-        await fetchGraduateRecords(undefined, true)
-    }}
-    searchHandler={async () => {
-        recordsInfo.page = 1
-        await fetchGraduateRecords(searchQuery, true)
-    }}
-    refetchHandler={async (prev = false) => {
-        if (prev && recordsInfo.page > 1) recordsInfo.page--
-
-        await fetchGraduateRecords(undefined, true)
-    }}
-    fetchPrevHandler={fetchPrevGraduateRecords}
-    fetchNextHandler={fetchNextGraduateRecords}
+    bind:isRecordOpen
+    bind:recordFileName
+    bind:filterCourses
+    bind:filterCourseId
+    bind:isFilterCoursesReady
+    clearHandler={handleSearchClearing}
+    searchHandler={handleGraduateRecordsSearching}
+    refetchHandler={handleGraduateRecordsRefetching}
+    fetchPrevHandler={handlePrevGraduateRecordsFetching}
+    fetchNextHandler={handleNextGraduateRecordsFetching}
 />

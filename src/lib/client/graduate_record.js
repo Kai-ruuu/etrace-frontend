@@ -51,11 +51,12 @@ export const GraduateRecord = {
         }
     },
     
-    searchGraduateRecords: async function(query = undefined, archived = undefined, page = 1, pageSize = 20) {
+    searchGraduateRecords: async function(query = undefined, courseId=undefined, archived = undefined, page = 1, pageSize = 20) {
         try {
             const params = new URLSearchParams();
     
             if (query !== undefined) params.set("query", query);
+            if (courseId !== undefined) params.set("course_id", courseId);
             if (archived !== undefined) params.set("archived", archived);
     
             params.set("page", page.toString());
