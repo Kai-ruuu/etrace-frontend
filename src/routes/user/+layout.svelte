@@ -1,10 +1,11 @@
 <script>
-    import Sidebar from "$lib/components/grouped/Sidebar.svelte";
-    import LoadingAnimation from "$lib/components/single/LoadingAnimation.svelte";
+    import Sidebar from "$lib/components/grouped/global/Sidebar.svelte";
+    import LoadingAnimation from "$lib/components/single/global/LoadingAnimation.svelte";
 	import { onMount } from "svelte";
 	import { goto } from "$app/navigation";
     import { user } from "$lib/stores/user";
 	import { me } from "$lib/client/authentication";
+    import "leaflet/dist/leaflet.css"
 
     let { children } = $props();
 
@@ -22,7 +23,7 @@
     {:else}
         <div class="flex">
             <Sidebar />
-            <div class="h-screen min-w-3/4 max-w-3/4 overflow-auto">
+            <div class="min-h-screen max-h-screen min-w-3/4 max-w-3/4 space-y-8 overflow-x-hidden overflow-y-auto">
                 {@render children()}
             </div>
         </div>

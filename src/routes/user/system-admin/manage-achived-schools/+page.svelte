@@ -4,7 +4,6 @@
     import { School } from "$lib/client/school";
     import PageHeader from "$lib/components/single/admin/PageHeader.svelte";
 	import SystemAdminSchoolsList from "$lib/components/grouped/system-admin/SystemAdminSchoolsList.svelte";
-	import AddSchoolModal from "$lib/components/single/system-admin/AddSchoolModal.svelte";
 	import Button from "$lib/components/single/global/Button.svelte";
 
     let searchQuery = $state("")
@@ -18,7 +17,6 @@
         has_prev: false,
         loading: false,
     })
-    let isAddModalOpen = $state(false)
     
     async function fetchSchools(query = undefined, archived = undefined) {
         schoolsInfo.loading = true
@@ -32,14 +30,14 @@
         
         Object.assign(schoolsInfo, data)
     }
-    
+
     async function fetchPrevSchools() {
         if (!schoolsInfo.has_prev) return
         
         schoolsInfo.loading = true
         const [status, data] = await School.searchSchools(
             searchQuery.length ? searchQuery : undefined,
-            false,
+            true,
             schoolsInfo.page - 1,
             schoolsInfo.page_size
         )
@@ -48,55 +46,41 @@
         Object.assign(schoolsInfo, data)
     }
             
-    async function fetchNextSchools() {
+    async function fetchNextSchools() {page_size
         if (!schoolsInfo.has_next) return
                 
         schoolsInfo.loading = true
         const [status, data] = await School.searchSchools(
             searchQuery.length ? searchQuery : undefined,
-            false,
+            true,
             schoolsInfo.page + 1,
-            schoolsInfo.page_size
+            schoolsInfo.pageSize
         )
         schoolsInfo.loading = false
 
         Object.assign(schoolsInfo, data)
     }
-
-    onMount(async () => await fetchSchools(undefined, false))
+    
+    onMount(async () => await fetchSchools(undefined, true))
     $effect(() => { if (schoolsInfo.items.length === 0) schoolsInfo.page = 0 })
 </script>
 
-<PageHeader title="School Management">
-    <Button onclick={() => isAddModalOpen = true}>
-        <Plus class="w-5 text-white" />
-        <span class="pr-2">Add School</span>
-    </Button>
-</PageHeader>
+<PageHeader title="Archived School Management" />
 <SystemAdminSchoolsList
-    forArchived={false}
+    forArchived={true}
     {schoolsInfo}
     bind:searchQuery
     clearHandler={async () => {
         schoolsInfo.page = 1
-        await fetchSchools(undefined, false)
+        await fetchSchools(undefined, true)
     }}
     searchHandler={async () => {
         schoolsInfo.page = 1
-        await fetchSchools(searchQuery, false)
+        await fetchSchools(searchQuery, true)
     }}
-    refetchHandler={async (prev = false) => {
+    refetchHandler={async (prev) => {
         if (prev && schoolsInfo.page > 1) schoolsInfo.page--
-
-        await fetchSchools(undefined, false)
+        
+        await fetchSchools(undefined, true)
     }}
-    fetchPrevHandler={fetchPrevSchools}
-    fetchNextHandler={fetchNextSchools}
 />
-
-{#if isAddModalOpen}
-    <AddSchoolModal
-        exitHandler={() => isAddModalOpen = false}
-        refetchHandler={async () => await fetchSchools(undefined, false)}
-    />
-{/if}

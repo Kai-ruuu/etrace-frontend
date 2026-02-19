@@ -1,11 +1,7 @@
 import { goto } from "$app/navigation"
-import { role } from "$lib/constants/user"
+import { displayApprovalStatus, role, roleIndexPage } from "$lib/constants/user"
 
 export function openIndexPage(userRole) {
-    const roleIndexPage = {
-        [role.SYSTEM_ADMIN]: "/user/system-admin"
-    }
-    
     goto(roleIndexPage[userRole])
 }
 
@@ -15,4 +11,8 @@ export function getDisplayName(userRole) {
     }
 
     return roleDisplayName[userRole]
+}
+
+export function getDisplayApprovalStatus(status) {
+    return displayApprovalStatus[status]
 }

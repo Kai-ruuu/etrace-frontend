@@ -21,7 +21,7 @@
             <ChevronDown class="w-5"/>
         {/if}
     </button>
-    {#if collapsed}
+    {#if collapsed && children}
         <div class="flex flex-col items-stretch pl-4">
             {@render children()}
         </div>

@@ -2,4 +2,4 @@
 	import PageHeader from "$lib/components/single/admin/PageHeader.svelte";
 </script>
 
-<PageHeader title="System Administrator's Dashboard"></PageHeader>
+<PageHeader title="Deans's Dashboard"></PageHeader>
