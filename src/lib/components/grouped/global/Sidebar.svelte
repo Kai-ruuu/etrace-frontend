@@ -39,7 +39,7 @@
                 <SidebarLink Icon={Book} path="/manage-courses">Courses</SidebarLink>
                 <SidebarLink Icon={GraduationCap} path="/manage-graduate-records">Graduate Records</SidebarLink>
                 <SidebarLink Icon={Briefcase} path="/manage-occupations-alignment">Occupations Alignment</SidebarLink>
-                <SidebarLink Icon={Users} path="/manage-alumni-approval">Alumni Approval</SidebarLink>
+                <SidebarLink Icon={Users} path="/manage-alumni-approvals">Alumni Approval</SidebarLink>
             </SidebarLinkParent>
             <SidebarLinkParent Icon={Settings} label="Settings">
                 <SidebarLink Icon={User}>Account</SidebarLink>
@@ -47,6 +47,14 @@
                     <SidebarLink Icon={Book} path="/manage-achived-courses">Courses</SidebarLink>
                     <SidebarLink Icon={GraduationCap} path="/manage-archived-graduate-records">Graduate Records</SidebarLink>
                 </SidebarLinkParent>
+            </SidebarLinkParent>
+        {:else if $user.role === role.PESO_STAFF}
+            <SidebarLink Icon={LayoutDashboard} path="/">Dashboard</SidebarLink>
+            <SidebarLinkParent Icon={Wrench} label="Manage">
+                <SidebarLink Icon={Users} path="/manage-company-approvals">Company Approval</SidebarLink>
+            </SidebarLinkParent>
+            <SidebarLinkParent Icon={Settings} label="Settings">
+                <SidebarLink Icon={User}>Account</SidebarLink>
             </SidebarLinkParent>
         {/if}
         <button

@@ -1,6 +1,6 @@
 <script>
     import cctBg from "$lib/assets/cct-bg.jpg"
-    import SigninForm from "$lib/components/grouped/SigninForm.svelte";
+    import SigninForm from "$lib/components/grouped/global/SigninForm.svelte";
 </script>
 
 <div
