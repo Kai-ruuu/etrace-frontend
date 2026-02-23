@@ -21,6 +21,9 @@ export const approvalStatus = {
 export const roleIndexPage = {
     [role.SYSTEM_ADMIN]: "/user/system-admin",
     [role.DEAN]: "/user/dean",
+    [role.PESO_STAFF]: "/user/peso-staff",
+    [role.COMPANY]: "/user/company",
+    [role.ALUMNI]: "/user/alumni",
 }
 
 export const EmploymentStatus = {

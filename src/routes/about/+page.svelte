@@ -1,5 +1,5 @@
 <script>
-    import Header from "$lib/components/grouped/Header.svelte";
+    import Header from "$lib/components/grouped/global/Header.svelte";
     import cctBg from "$lib/assets/cct-bg.jpg"
 </script>
 

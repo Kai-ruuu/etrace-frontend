@@ -38,8 +38,12 @@
 
         const [status, data] = await signin(formData)
         
-        user.set(data)
-        openIndexPage(data.role)
+        if (status === 200) {
+            user.set(data)
+            openIndexPage(data.role)
+        } else {
+            console.log(data.detail)
+        }
     }
 </script>
 
@@ -56,20 +60,18 @@
             <div class="flex flex-col items-stretch relative">
                 <Mail class="absolute top-1/2 left-4 translate-y-[-50%]"/>
                 <input
-                id="email"
-                name="email"
+                    id="email"
                     type="email"
                     placeholder="Email"
                     bind:value={formData.email.value}
                     required
                     class="border-none bg-gray-100 rounded-full p-4 indent-10"
-                    >
-                </div>
+                >
+            </div>
                 <div class="flex flex-col items-stretch relative">
                 <Lock class="absolute top-1/2 left-4 translate-y-[-50%]"/>
                 <input
                     id="password"
-                    name="password"
                     type="password"
                     placeholder="Password"
                     bind:value={formData.password.value}

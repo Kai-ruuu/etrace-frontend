@@ -1,6 +1,6 @@
 <script>
     import { Company } from "$lib/client/company";
-	import { Archive, ArchiveRestore, CircleMinus, CirclePause, CirclePlus, Search, X } from "lucide-svelte";
+	import { Archive, ArchiveRestore, BookSearch, CircleMinus, CirclePause, CirclePlus, Search, X } from "lucide-svelte";
 	import Paginator from "../../single/global/Paginator.svelte";
 	import Button from "../../single/global/Button.svelte";
 	import TransparentButton from "../../single/global/TransparentButton.svelte";
@@ -11,6 +11,8 @@
 
     let {
         searchQuery = $bindable(""),
+        requirementsInfo = $bindable(null),
+        isViewReqModalOpen = $bindable(false),
         companiesInfo,
         clearHandler,
         searchHandler,
@@ -41,6 +43,21 @@
         const pageIsEmpty = companiesInfo.items.length - 1 === 0
         
         await refetchHandler(pageIsEmpty)
+    }
+
+    function openModalAndSetReqInfo(company) {
+        isViewReqModalOpen = true;
+        requirementsInfo = {
+            sec_filename: company.company_profile.sec_filename,
+            profile_filename: company.company_profile.profile_filename,
+            business_permit_filename: company.company_profile.business_permit_filename,
+            list_of_vacancies_filename: company.company_profile.list_of_vacancies_filename,
+            cert_from_dole_filename: company.company_profile.cert_from_dole_filename,
+            cert_of_no_pending_case_filename: company.company_profile.cert_of_no_pending_case_filename,
+            reg_dti_cda_filename: company.company_profile.reg_dti_cda_filename,
+            reg_of_est_filename: company.company_profile.reg_of_est_filename,
+            reg_philjobnet_filename: company.company_profile.reg_philjobnet_filename,
+        }
     }
 </script>
 
@@ -82,7 +99,6 @@
                         <th class="text-left p-2">Name</th>
                         <th class="text-left p-2">Address</th>
                         <th class="text-left p-2">Email</th>
-                        <th class="text-left p-2">Status</th>
                         <th class="text-left p-2">Approval Status</th>
                         <th class="text-left p-2">Actions</th>
                     </tr>
@@ -93,24 +109,16 @@
                             <td class="p-2">{company.company_profile.name}</td>
                             <td class="p-2">{company.company_profile.address}</td>
                             <td class="p-2">{company.email}</td>
-                            <td class={`p-2 ${company.is_disabled ? "text-red-700" : "text-green-700"}`}>{company.is_disabled ? "Disabled" : "Enabled"}</td>
-                            <ApprovalStatusColumn status={company.company_profile.sysad_approval_status} />
+                            <ApprovalStatusColumn status={company.company_profile.peso_staff_approval_status} />
                             <td class="p-2 flex items-center space-x-3">
                                 <Button
                                     variant="sm"
-                                    onclick={async () => {
-                                        if (company.is_disabled) await enable(company)
-                                        else await disable(company)
-                                    }}
+                                    onclick={() => openModalAndSetReqInfo(company)}
                                 >
-                                    {#if company.is_disabled}
-                                        <CirclePlus class="w-4 text-white" />
-                                    {:else}
-                                        <CircleMinus class="w-4 text-white" />
-                                    {/if}
-                                        <span class="pr-1">{company.is_disabled ? "Enable" : "Disable"}</span>
+                                    <BookSearch class="w-4 text-white" />
+                                    <span class="pr-1">Requirements</span>
                                 </Button>
-                                {#if company.company_profile.sysad_approval_status !== approvalStatus.APPROVED}
+                                {#if company.company_profile.peso_staff_approval_status !== approvalStatus.APPROVED}
                                     <Button
                                         variant="sm"
                                         onclick={async () => await approve(company)
@@ -119,7 +127,7 @@
                                         <span class="pr-1">Approve</span>
                                     </Button>
                                 {/if}
-                                {#if company.company_profile.sysad_approval_status !== approvalStatus.PENDING}
+                                {#if company.company_profile.peso_staff_approval_status !== approvalStatus.PENDING}
                                     <Button
                                         variant="sm"
                                         onclick={async () => await pend(company)
@@ -128,7 +136,7 @@
                                         <span class="pr-1">Pend</span>
                                     </Button>
                                 {/if}
-                                {#if company.company_profile.sysad_approval_status !== approvalStatus.REJECTED}
+                                {#if company.company_profile.peso_staff_approval_status !== approvalStatus.REJECTED}
                                     <Button
                                         variant="sm"
                                         onclick={async () => await reject(company)

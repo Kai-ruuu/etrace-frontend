@@ -1,5 +1,64 @@
 import { apiPath } from "$lib/helpers/api"
 
+export async function signupAsAlumni(formData = {}) {
+    try {
+        const fData = new FormData();
+
+        for (const [key, value] of Object.entries(formData)) {
+            if (key.includes("confirm")) {
+                continue;
+            }
+
+            if (["socials", "occupations"].includes(key)) {
+                fData.append(key, JSON.stringify(value.value));
+                continue;
+            }
+            
+            fData.append(key, value.value);
+        }
+        
+        const res = await fetch(apiPath("/api/v1/authentication/register/alumni"), {
+            method: "POST",
+            credentials: "include",
+            body: fData
+        })
+        const data = await res.json();
+
+        console.log(data);
+        
+        return [res.status, data];
+    } catch (error) {
+        console.error("Unable to signup: ", error);
+    }
+}
+
+export async function signupAsCompany(formData = {}) {
+    try {
+        const fData = new FormData();
+
+        for (const [key, value] of Object.entries(formData)) {
+            if (key.includes("confirm")) {
+                continue;
+            }
+            
+            fData.append(key, value.value);
+        }
+        
+        const res = await fetch(apiPath("/api/v1/authentication/register/company"), {
+            method: "POST",
+            credentials: "include",
+            body: fData
+        })
+        const data = await res.json();
+
+        console.log(data);
+        
+        return [res.status, data];
+    } catch (error) {
+        console.error("Unable to signup: ", error);
+    }
+}
+
 export async function signin(formData = {}) {
     try {
         const res = await fetch(apiPath("/api/v1/authentication/login"), {

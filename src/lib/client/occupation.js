@@ -1,6 +1,20 @@
 import { apiPath } from "$lib/helpers/api"
 
 export const Occupation = {
+    getAll: async function() {
+        try {
+            const apiUrl = apiPath("/api/v1/insti/occupation")
+            const res = await fetch(apiUrl, {
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+            })
+            const data = await res.json()
+            return [res.status, data]
+        } catch (error) {
+            console.error("Unable to get all occupations: ", error)
+        }
+    },
+    
     searchWithCourseId: async function(courseId = 1, aligned = undefined, query = undefined, page = 1, pageSize = 20) {
         try {
             const params = new URLSearchParams();
